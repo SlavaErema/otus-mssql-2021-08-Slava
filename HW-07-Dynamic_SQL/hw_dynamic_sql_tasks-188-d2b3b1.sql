@@ -42,8 +42,53 @@ InvoiceMonth | Aakriti Byrraju    | Abel Spirlea       | Abel Tatarescu | ... (Ð
 */
 
 
+--	DECLARE @dml AS NVARCHAR(MAX)
+--DECLARE @ColumnName AS NVARCHAR(MAX)
+--create table #tt (CustomerName NVARCHAR(50),CustomerID int)
+--insert into #tt (CustomerName,CustomerID) 
+--		select distinct SUBSTRING(LEFT([CustomerName],NULLIF(PATINDEX('%)%',[CustomerName]),0)-1),(CHARINDEX ('(', [CustomerName])+1),20)	as 	Customer_Name3
+--			           ,sic.CustomerID
+--				FROM [WideWorldImporters].[Sales].[Invoices] as sic
+--					 inner join [WideWorldImporters].[Sales].[Customers] as wis
+--							 on sic.CustomerID=wis.CustomerID
+--				where sic.CustomerID between 2 and 6
+
+----select * from #tt
+----drop table #tt
+
+--SELECT @ColumnName= ISNULL(@ColumnName + ',','') 
+--       + QUOTENAME(CustomerName)
+--FROM (select CustomerName from #tt
+--) AS Customer_Name
+
+----SELECT @ColumnName as ColumnName
+
+--SET @dml = 
+--  N'select dateInvoices,'+@ColumnName+' from (
+--	select 
+--		 convert(nvarchar,(DATEFROMPARTS(YEAR(InvoiceDate),MONTH(InvoiceDate),1)),104) as dateInvoices
+--		 ,w.CustomerName
+--  , count([OrderID]) as cou
+--	 FROM [WideWorldImporters].[Sales].[Invoices] as sic
+--	 inner join #tt as w on w.CustomerID=sic.CustomerID
+--	 where sic.CustomerID between 2 and 6
+--	 group by sic.CustomerID,w.CustomerName
+--	 ,convert(nvarchar,(DATEFROMPARTS(YEAR(InvoiceDate),MONTH(InvoiceDate),1)),104)) as t
+--	 PIVOT (sum(cou)
+--FOR CustomerName IN ('+@ColumnName+'))
+--as PVT_my
+--order by year(convert(date,dateInvoices)), month(convert(date,dateInvoices))'
+
+--exec(@dml)
+
+
 	DECLARE @dml AS NVARCHAR(MAX)
 DECLARE @ColumnName AS NVARCHAR(MAX)
+declare @a NVARCHAR(10) 
+set @a= 2
+declare @b NVARCHAR(10) 
+set @b= 6
+drop table if exists  #tt
 create table #tt (CustomerName NVARCHAR(50),CustomerID int)
 insert into #tt (CustomerName,CustomerID) 
 		select distinct SUBSTRING(LEFT([CustomerName],NULLIF(PATINDEX('%)%',[CustomerName]),0)-1),(CHARINDEX ('(', [CustomerName])+1),20)	as 	Customer_Name3
@@ -51,17 +96,13 @@ insert into #tt (CustomerName,CustomerID)
 				FROM [WideWorldImporters].[Sales].[Invoices] as sic
 					 inner join [WideWorldImporters].[Sales].[Customers] as wis
 							 on sic.CustomerID=wis.CustomerID
-				where sic.CustomerID between 2 and 6
-
---select * from #tt
---drop table #tt
+				where sic.CustomerID between @a and @b
 
 SELECT @ColumnName= ISNULL(@ColumnName + ',','') 
        + QUOTENAME(CustomerName)
 FROM (select CustomerName from #tt
 ) AS Customer_Name
 
---SELECT @ColumnName as ColumnName
 
 SET @dml = 
   N'select dateInvoices,'+@ColumnName+' from (
@@ -71,7 +112,7 @@ SET @dml =
   , count([OrderID]) as cou
 	 FROM [WideWorldImporters].[Sales].[Invoices] as sic
 	 inner join #tt as w on w.CustomerID=sic.CustomerID
-	 where sic.CustomerID between 2 and 6
+	 where sic.CustomerID between '+@a+' and '+@b+'
 	 group by sic.CustomerID,w.CustomerName
 	 ,convert(nvarchar,(DATEFROMPARTS(YEAR(InvoiceDate),MONTH(InvoiceDate),1)),104)) as t
 	 PIVOT (sum(cou)
