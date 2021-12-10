@@ -465,7 +465,7 @@ CREATE TABLE dir.Mark (
 	ID_Mark integer identity (1,1) NOT NULL,
 	Mark varchar(50) NOT NULL,
 	Company_ID integer NOT NULL,
-	purpose_ID integer NOT NULL,
+	Purpose_ID integer NOT NULL,
 	Product_ID integer NOT NULL,
 	Mask1 varchar(50) NOT NULL,
 	Mask2 varchar(50),
